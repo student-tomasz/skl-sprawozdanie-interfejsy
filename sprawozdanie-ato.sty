@@ -1,0 +1,52 @@
+\ProvidesPackage{sprawozdanie-ato}
+
+\usepackage{polski}
+\usepackage{indentfirst}
+\usepackage{xltxtra}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{color}
+
+\defaultfontfeatures{Mapping=tex-text}
+\setromanfont{Charis SIL}
+\setmonofont[Scale=MatchLowercase]{Inconsolata}
+%\setsansfont[Scale=MatchLowercase]{Helvetica Neue}
+\onehalfspacing
+
+\definecolor{dkgreen}{rgb}{0.2,0.8,0.2}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  %firstnumber=1,
+  %stepnumber=5,
+  %numbersep=5pt,
+  tabsize=2,
+  breaklines=true,
+  breakatwhitespace=false,
+  showspaces=false,
+  showstringspaces=false,
+  showtabs=false,
+  frame=tb,
+  captionpos=b,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{mauve},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve}
+}
+
+\hypersetup{
+  unicode=true
+}
+
+\newcommand{\bsd}{\textbf{FreeBSD}}
+\newcommand{\eth}{\textbf{Ethernet}}
+\newcommand{\wifi}{\textbf{Wi\dywiz Fi}}
+\newcommand{\bt}{\textbf{Bluetooth}}
+\newcommand{\uart}{\textbf{UART}}
+\newcommand{\zielone}{\textbf{so5501a}}
+\newcommand{\wat}{\textbf{wat}}
+\newcommand{\volt}{\textbf{volt}}
