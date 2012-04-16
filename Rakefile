@@ -1,5 +1,9 @@
 $document = 'sprawozdanie-interfejsy.pdf'
-$dependencies = %W{sprawozdanie-ato.sty tex/bluetooth.tex}
+$dependencies = [
+  'sprawozdanie-ato.sty',
+  'tex/tytul.tex',
+  'tex/bluetooth.tex',
+]
 $byproducts = %w{*.out *.log *.aux *.toc}
 
 $lc = 'xelatex'
