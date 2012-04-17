@@ -3,7 +3,7 @@ $dependencies = [
   'sprawozdanie-ato.sty',
   'tex/tytul.tex',
   'tex/bluetooth.tex',
-  'tex/uart.tex'
+  'tex/rs232.tex'
 ]
 $byproducts = %w{*.out *.log *.aux *.toc}
 
