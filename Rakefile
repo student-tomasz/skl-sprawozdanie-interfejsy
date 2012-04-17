@@ -2,6 +2,7 @@ $document = 'sprawozdanie-interfejsy.pdf'
 $dependencies = [
   'sprawozdanie-ato.sty',
   'tex/tytul.tex',
+  'figury/bluetooth/schemat.png',
   'tex/bluetooth.tex',
   'tex/rs232.tex'
 ]
