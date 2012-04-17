@@ -33,7 +33,7 @@ skryptu \texttt{sterowniki -b}.
 % sudo kldload uhci ehci ng_ubt
 \end{lstlisting}
 
-Są to sterowniki odpowiedzialne za stos USB oraz samo urządzenie bluetooth,
+Są to sterowniki odpowiedzialne za stos USB oraz samo urządzenie \bt,
 podłączone do komputera przez USB. Bezpośrednio po załadowaniu sterowników
 urządzenie nie było widoczne w komunikacie polecenia \texttt{sudo lsusb}. Po
 odłączeniu i~ponownym podłączeniu, urządzenie zostało wykryte:
@@ -54,7 +54,7 @@ z~wcześniejszą instrukcją uruchomiliśmy usługę \bt.
 \end{lstlisting}
 
 Polecenie to nie uruchamia żadnego systemowego demona. Konfiguruje tylko
-urządzenie \bt do pracy, za pomocą komend \texttt{ngctl} i~\texttt{hccontrol}.
+urządzenie \bt{} do pracy, za pomocą komend \texttt{ngctl} i~\texttt{hccontrol}.
 
 Polecenie \texttt{ngctl} służy do tworzenia i~wysyłania komand do węzła
 \emph{Netgraph}. \emph{Netgraph} to podsystem jądra, który pozwala obsługiwać
