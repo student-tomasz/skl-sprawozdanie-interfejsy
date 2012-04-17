@@ -16,21 +16,20 @@ jest kabel typu \emph{null\dywiz modem}\cite{serial-console}.
 
 Po załadowaniu niezbędnych sterowników i~podłączeniu kabla \emph{null\dywiz
 modem} zajrzeliśmy do pliku \texttt{/etc/remote}, w~którym zdefiniowane są
-systemy znane przez program \texttt{tip}.
+systemy rozpoznawalne przez program \texttt{tip}. Dla każdego systemu podana
+jest nazwa urządzenia oraz konfiguracja połączenia, gdzie ustalane są m.in. typ
+kontroli parzystości i~prędkość transmisji.
 
-Dla każdego systemu podana jest nazwa urządzenia oraz konfiguracja połączenia,
-gdzie ustalane są m.in. typ kontroli parzystości i~prędkość transmisji.
-
-\begin{lstlisting}[caption={\texttt{/etc/remote}}]
+\begin{lstlisting}[caption={Linie z \texttt{/etc/remote} dotyczące naszego połączenia.}]
 modem:dv=/dev/cuau0:br#115200:pa=none:
 ps:dv=/dev/cuau0:br#115200:pa=none:
 bt:dv=/dev/ttyp0:br#115200:pa=none:
 \end{lstlisting}
 
-Skorzystaliśmy z~urządzenia \texttt{ps}, ponieważ wynik polecenia
-\texttt{sterowniki -s} sugerował, że mamy się połączyć z urządzeniem
-\texttt{/dev/cuau0}. Do tego prędkość transmisji zgadzała się z zaproponowanymi
-w wyjściu polecenia.
+Skorzystaliśmy z~urządzenia \texttt{ps}, ponieważ instrukcja ze skryptu
+\texttt{sterowniki~-s} sugerowała połączenie wykorzystujące urządzenie
+\texttt{/dev/cuau0}. Dodatkowo zadeklarowana w \texttt{/etc/remote} prędkość
+transmisji zgadzała się z prędkością zaproponowaną w instrukcji.
 
 \begin{lstlisting}[caption={Połączenie z konsolą maszyny \zielone{} za pomocą programu \texttt{tip}.}]
 k9% sudo tip ps
@@ -45,8 +44,10 @@ POST: 012345689bcefghips1234ajklnopqr,,,tvwxy
 comBIOS ver. 1.33c 20080626  Copyright (C) 2000-2008 Soekris Engineering.
 \end{lstlisting}
 
-Zastosowaliśmy polecenie z zestawu rozkazów Hayesa żeby zrestartować maszynę
-\zielone{} i z pomocą prowadzącego uruchomiliśmy na niej system \bsd.
+Żeby zrestartować maszynę \zielone{} zastosowaliśmy polecenie z zestawu rozkazów
+Hayesa tj. wpisaliśmy \texttt{+++} i po odczekaniu chwili wydaliśmy polecenie
+\texttt{RESET}. Następnie z pomocą prowadzącego uruchomiliśmy na \zielone{}
+system \bsd.
 
 \subsubsection{Konfiguracja połączenia --- \bt}
 
@@ -73,13 +74,13 @@ efekcie konsola, z~którą chcemy się połączyć jest dostępna w~konsoli, z~k
 się łączyliśmy, analogicznie do działania programu \texttt{tip} w~sekcji
 \ref{sec:serial:null-modem}.
 
-\begin{lstlisting}[caption={Połączenie z konsolą za pomocą programu \texttt{rfcomm\_sppd}.}]
+\begin{lstlisting}[caption={Połączenie z konsolą maszyny Soekris za pomocą programu \texttt{rfcomm\_sppd}.}]
 # Na maszynie k9.
-% hostname
+k9% hostname
 k9
 
 # Laczymy sie z maszyna Soekris poprzez modem Firefly.
-% rfcomm_sppd -a F11
+k9% rfcomm_sppd -a F11
 rfcomm_sppd[1656]: Starting on stdin/stdout...
 Login:stud
 Password:zetis
