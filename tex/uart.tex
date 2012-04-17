@@ -1,0 +1,73 @@
+\section{Połączenie szeregowe}
+\subsection{Wprowadzenie}
+Systemy z~rodziny *NIX pozwalają na korzystanie z~konsoli za pośrednictwem portu szeregowego (zwykle rs\dywiz 232).
+Funkcja ta jest przydatna zarówno dla administratorów (ponieważ nie trzeba podłączać klawiatury i~monitora do serwera) jak i~programistów, pracujących nad sterownikami.
+
+Skorzystaliśmy z~konsoli aby połączyć się z~urządzeniem \zielone{}\todo{jak się nazywało to zielone?}.
+
+Do zestawienia takiego połączenia za pomocą portu szeregowego potrzebny jest kabel typu \emph{null\dywiz modem}\cite{serial-console}.
+
+\subsection{Wykonanie Ćwiczenia - null-modem}
+\label{sec:serial:null-modem}
+
+Po załadowaniu niezbędnych sterowników i~podłączeniu kabla \emph{null\dywiz modem} zajrzeliśmy do pliku \texttt{/etc/remote}, w~którym zdefiniowane są systemy znane przez program \texttt{tip}.
+
+Dla każdego systemu podana jest nazwa urządzenia oraz konfiguracja połączenia (ustawienia takie jak typ kontroli parzystości i~prędkość transmisji).
+
+\begin{lstlisting}[caption={\texttt{/etc/remote}}]
+#ATO:
+modem:dv=/dev/cuau0:br#115200:pa=none:
+ps:dv=/dev/cuau0:br#115200:pa=none:
+bt:dv=/dev/ttyp0:br#115200:pa=none:
+\end{lstlisting}
+
+Skorzystaliśmy z~urządzenia \texttt{ps}, ponieważ wynik polecenia \texttt{sterowniki -s} sugerował, że mamy się połączyć z urządzeniem \texttt{/dev/cuau0}.
+Do tego prędkość transmisji zgadzała się z zaproponowanymi w wyjściu polecenia.
+
+\begin{lstlisting}[caption={Połączenie z konsolą za pomocą programu tip}]
+k9% sudo tip ps
+^Gconnected
+
+Login incorrect
+debian login:
+debian login: +++RESET
+
+POST: 012345689bcefghips1234ajklnopqr,,,tvwxy
+
+comBIOS ver. 1.33c 20080626  Copyright (C) 2000-2008 Soekris Engineering.
+
+\end{lstlisting}
+
+Zastosowaliśmy polecenie z zestawu rozkazów Hayesa żeby zrestartować maszynę \zielone{} i z pomocą prowadzącego uruchomiliśmy na niej system FreeBSD.
+
+\subsection{Wykonanie Ćwiczenia - bluetooth}
+Dzięki zastosowaniu modemu radiowego \emph{firefly} możliwe jest bezprzewodowe połączenie z~konsolą.
+
+Modem Firefly posiada tryb pracy, w~którym w~przezroczysty sposób zastępuje kabel szeregowy, jednak wymagane są dwa modemy na każde połączenie.
+
+Zamiast tego w~laboratorium każda z~maszyn \zielone{} ma podpiety jeden modem, a~komputery - terminale - łączą się z tym modemem za pomocą własnego, niespecjalizowanego radia Bluetooth.
+
+Rozwiązanie takie pozwala ograniczyć liczbę potrzebnych modemów \emph{Firefly}, wymaga jednak więcej konfiguracji.
+
+Po załadowaniu niezbędnych sterowników i~wyszukaniu interesujących nas urządzeń w~eterze (analogicznie do ćwiczenia \ref{sec:bt}), próbowaliśmy skorzystać ze skryptu \texttt{bt\dywiz spp}.
+Niestety skrypt aktualnie nie działa.
+
+Wykryliśmy, że problem dotyczy tworzenia nowego terminala przez polecenie \texttt{rfcomm\_sppd}.
+Wyłączenie tej funkcjonalności ograniczyłoby zastosowania skryptu \texttt{bt\dywiz spp}, ale na nasze potrzeby było wystarczające.
+Po wyłączeniu tworzenia urządzenia - pseudo\dywiz terminala konsola, z~którą chcemy się połaczyć jest dostępna w~konsoli, z~której się łaczyliśmy (analogicznie do działania programu \texttt{tip} w~sekcji \ref{sec:serial:null-modem}).
+
+\begin{lstlisting}[caption={Połączenie z konsolą za pomocą programu \texttt{rfcomm\_sppd}}]
+ $ hostname
+k9
+ $ rfcomm_sppd -a F11
+rfcomm_sppd[1656]: Starting on stdin/stdout...
+Login:stud
+Password:zetis
+
+Last login: Fri Apr 13 04:57:21 on ttyu0
+FreeBSD 9.0-STABLE (SOEKRIS) #0 r233366M: Sat Mar 24 00:57:52 CET 2012
+
+so4801% hostname
+hostname
+so4801
+\end{lstlisting}
