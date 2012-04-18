@@ -5,6 +5,7 @@ $dependencies = [
   'figury/ethernet/schemat-bez-konfiguracji.pdf',
   'figury/ethernet/schemat-po-konfiguracji.pdf',
   'tex/ethernet.tex',
+  'tex/wifi.tex',
   'figury/bluetooth/schemat.png',
   'tex/bluetooth.tex',
   'tex/rs232.tex'

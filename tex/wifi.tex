@@ -1,0 +1,207 @@
+\subsection{\wifi}
+
+\subsubsection{Wprowadzenie}
+
+Pod terminem \wifi{} rozumiana jest sieć WLAN --- Wireless Local Area Network w
+standardzie \texttt{IEEE 802.11}. W laboratorium urządzenia pracują zgodnie z
+wersją \texttt{IEEE 802.11g} standardu. Standard zakłada pracę na paśmie
+częstotliwości 2400 MHz \cite{wifi:pasmo} i oferuje szybkość do 54 Mbps
+\cite{wifi:szybkosc} w zasięgu do 38 metrów od punktu dostępowego. W paśmie
+standardu \texttt{g} mieści się 14 kanałów. W Polsce można używać kanały od 1.
+do 13., czyli pasmo 2400 MHz do 2483,5 MHz. Przeczytano wstęp obsługi sieci
+bezprzewodowych \cite{wifi:bsd-handbook} dla systemu \bsd{} i przystąpiono do
+wykonania ćwiczenia.
+
+Do maszyny \kdziew{} podłączone jest urządzenie \wifi{} przez port USB. By móc z
+niego skorzystać postąpiono zgodnie z instrukcjami ze skryptu \texttt{sterowniki
+-w}.
+
+\begin{lstlisting}
+k9% sudo kldload uhci ehci
+k9% lsusb
+[...]
+ugen4.2: <Wireless-G ProtableUSB Adapter Cisco-Linksys> at usbus4, cfg=0 md=HOST spd=HIGH (480Mbps) pwr=ON
+\end{lstlisting}
+
+Po załadowaniu sterowników USB, urządzenie \wifi{} zostało wykryte przez system.
+Załadowano sterowniki dla samego urządzenia \wifi{} i stwierdzono powstanie
+nowego interfejsu o nazwie \texttt{ural0}.
+
+\begin{lstlisting}
+k9% sudo kldload if_ural
+k9% ifconfig
+[...]
+ural0: flags=8802<BROADCAST,SIMPLEX,MULTICAST> metric 0 mtu 2290
+    ether 00:12:17:60:ee:f8
+    media: IEEE 802.11 Wireless Ethernet autoselect <adhoc> (autoselect <adhoc>)
+    status: no carrier
+\end{lstlisting}
+
+Z tak załadowanym radiem \wifi{}, zaczęto konfigurować połączenie do sieci WLAN
+\texttt{ZETiIS}.
+
+\subsubsection{Konfiguracja połączenia --- do punktu dostępowego}
+
+Stworzono pseudo\dywiz interfejs \texttt{wlan0}, który korzysta z rzeczywistego
+interfejsu \texttt{ural0}. Nie podano specjalnego trybu pracy urządzenia,
+zostaje wybrany tryb domyślny. Ustawiono polskie restrykcje dotyczące dostępnego
+pasma i sprawdzono stan nowego interfejsu.
+
+\begin{lstlisting}
+k9% sudo ifconfig wlan0 create wlandev ural0
+k9% sudo ifconfig wlan0 country PL
+k9% ifconfig wlan0
+wlan0: flags=8802<BROADCAST,SIMPLEX,MULTICAST> metric 0 mtu 1500
+    ether 00:12:17:60:ee:f8
+    media: IEEE 802.11 Wireless Ethernet autoselect (autoselect)
+    status: no carrier
+    ssid "" channel 1 (2412 MHz 11b)
+    regdomain ETSI country PL authmode OPEN privacy OFF txpower 30
+    bmiss 7 scanvalid 60 bgscan bgscanintvl 300 bgscanidle 250 roam:rssi 7
+    roam:rate 1 bintval 0
+\end{lstlisting}
+
+Uruchomiono interfejs \texttt{wlan0} oraz przeszukano dostępne sieci \wifi.
+
+\begin{lstlisting}
+k9% sudo ifconfig wlan0 up
+k9% sudo ifconfig wlan0 scan
+SSID/MESH ID    BSSID              CHAN RATE   S:N     INT CAPS
+[...]
+ZETiIS          00:1e:52:79:ca:59    6   54M -74:-95  100 EPS  RSN HTCAP WME
+pwwifi-stud...  00:24:14:31:95:03   11   54M -87:-95  102 ES   HTCAP WME
+pwwifi-stud...  00:21:a0:81:86:c3    1   54M -83:-95  102 ES   HTCAP WME
+pwwifi          00:24:14:31:95:00   11   54M -87:-95  102 ES   HTCAP WME
+pwwifi          00:21:a0:0f:e2:40   11   54M -88:-95  102 ES   HTCAP WME
+\end{lstlisting}
+
+Razem z listą innych sieci, widoczna jest sieć \texttt{ZETiIS} z atrybutami
+\texttt{EPS}. Każdy ze znaków informuje o danej cesze sieci. Interesujące nas
+cechy to:
+
+\begin{description}
+    \item[E] --- aktualny nadajnik jest częścią większej infrastruktury, nie
+        pracuje w trybie ad\dywiz hoc,
+    \item[P] --- sieć wymaga autoryzacji użytkownika. Dla porównania widać, że
+        sieć \texttt{pwwifi} nie jest zabezpieczona na tej warstwie.
+\end{description}
+
+Podano jawną nazwę sieci, do której chcemy się połączyć. Nie uzyskano
+połączenia. Niezbędny jest sekret uprawniający do skorzystania z sieci.
+
+\begin{lstlisting}
+k9% sudo ifconfig wlan0 ssid ZETiIS
+k9% sudo ifconfig wlan0
+wlan0: flags=8843<UP,BROADCAST,RUNNING,SIMPLEX,MULTICAST> metric 0 mtu 1500
+    ether 00:12:17:60:ee:f8
+    media: IEEE 802.11 Wireless Ethernet autoselect (autoselect)
+    status: no carrier
+    ssid ZETiIS channel 11 (2462 MHz 11g)
+    regdomain ETSI country PL authmode WPA2/802.11i privacy OFF
+    txpower 30 bmiss 7 scanvalid 60 bgscan bgscanintvl 300 bgscanidle 250
+    roam:rssi 7 roam:rate 5 protmode CTS bintval 102
+\end{lstlisting}
+
+Ponieważ sieć \texttt{ZETiIS} korzysta z szyfrowania WPA w wersji korporacyjnej,
+potrzebne są dane autoryzujące użytkownika, oraz wymiana kluczy i szyfrowanie,
+czym zajmuje się usługa \texttt{wpa\_supplicant}. Włączono demona
+\texttt{wpa\_supplicant} dla interfejsu \texttt{wlan0}, podano sekret
+użytkownika i nawiązano połączenie z siecią.
+
+\begin{lstlisting}
+k9% sudo service wpa_supplicant start wlan0
+Starting wpa_supplicant.
+
+k9% sudo wpa_cli ping
+PONG
+
+k9% sudo wpa_cli status
+wpa_state=DISCONNECTED
+Supplicant PAE state=DISCONNECTED
+suppPortStatus=Unauthorized
+EAP state=DISABLED
+selectedMethod=25 (EAP-PEAP)
+EAP TLS cipher=DHE-RSA-AES256-SHA
+EAP-PEAPv0 Phase2 method=MSCHAPV2
+
+k9% sudo wpa_cli identity ZETiIS cudzilot
+OK
+
+k9% sudo wpa_cli password ZETiIS haslo12345
+OK
+
+k9% sudo wpa_cli select_network ZETiIS
+OK
+
+k9% sudo wpa_cli status
+bssid=00:1e:52:79:ca:59
+ssid=ZETiIS
+id=0
+mode=station
+pairwise_cipher=CCMP
+group_cipher=CCMP
+key_mgmt=WPA2/IEEE 802.1X/EAP
+wpa_state=COMPLETED
+Supplicant PAE state=AUTHENTICATED
+suppPortStatus=Authorized
+EAP state=SUCCESS
+selectedMethod=25 (EAP-PEAP)
+EAP TLS cipher=DHE-RSA-AES256-SHA
+EAP-PEAPv0 Phase2 method=MSCHAPV2
+
+k9% sudo ifconfig wlan0
+wlan0: flags=8843<UP,BROADCAST,RUNNING,SIMPLEX,MULTICAST> metric 0 mtu 1500
+    ether 00:12:17:60:ee:f8
+    media: IEEE 802.11 Wireless Ethernet DS/1Mbps mode 11g
+    status: associated
+    ssid ZETiIS channel 6 (2437 MHz 11g) bssid 00:1e:52:79:ca:59
+    regdomain ETSI country PL authmode WPA2/802.11i privacy ON
+    deftxkey UNDEF AES-CCM 3:128-bit txpower 30 bmiss 7 scanvalid 450
+    bgscan bgscanintvl 300 bgscanidle 250 roam:rssi 7 roam:rate 5
+    protmode CTS roaming MANUAL
+\end{lstlisting}
+
+Następnie skonfigurowano warstwę 3. dla interfejsu \texttt{wlan0}, za pomocą
+DHCP. Analogicznie do konfiguracji z sekcji \ref{sec:eth:konfiguracja}. Łącze
+przetestowano wysyłając zapytania z \volt{} i nasłuchując ruch na interfejsie.
+
+\begin{lstlisting}
+k9% sudo dhclient wlan0
+DHCPDISCOVER on wlan0 to 255.255.255.255 port 67 interval 4
+DHCPDISCOVER on wlan0 to 255.255.255.255 port 67 interval 9
+DHCPOFFER from 10.146.7.3
+unknown dhcp option value 0xaf
+DHCPREQUEST on wlan0 to 255.255.255.255 port 67
+DHCPACK from 10.146.7.3
+unknown dhcp option value 0xaf
+bound to 10.146.226.113 -- renewal in 1800 seconds.
+
+volt% ping -c 1 10.146.226.113
+PING 10.146.226.113 (10.146.226.113): 56 data bytes
+64 bytes from 10.146.226.113: icmp_seq=0 ttl=64 time=2.822 ms
+--- 10.146.226.113 ping statistics ---
+1 packets transmitted, 1 packets received, 0.0% packet loss
+round-trip min/avg/max/stddev = 2.822/2.822/2.822/0.000 ms
+
+k9% sudo tcpdump -i wlan0 icmp
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on wlan0, link-type EN10MB (Ethernet), capture size 65535 bytes
+00:35:53.738249 IP 10.146.7.3 > 10.146.226.113: ICMP echo request, id 22633, seq 0, length 64
+00:35:53.738287 IP 10.146.226.113 > 10.146.7.3: ICMP echo reply, id 22633, seq 0, length 64
+^C
+2 packets captured
+259 packets received by filter
+0 packets dropped by kernel
+\end{lstlisting}
+
+Na koniec ćwiczenia zatrzymano demon \texttt{wpa\_supplicant} i usunięto
+pseudo\dywiz interfejs \texttt{wlan0}.
+
+\begin{lstlisting}
+k9% sudo service wpa_supplicant stop wlan0
+Stopping wpa_supplicant.
+Waiting for PIDS: 1275.
+k9% sudo ifconfig wlan0 destroy
+\end{lstlisting}
+
+%\subsubsection{Konfiguracja połączenia --- tryb ad\dywiz hoc}
